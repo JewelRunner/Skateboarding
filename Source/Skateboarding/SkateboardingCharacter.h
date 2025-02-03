@@ -7,14 +7,6 @@
 #include "Logging/LogMacros.h"
 #include "SkateboardingCharacter.generated.h"
 
-UENUM()  // This macro allows the enum to be used in Blueprints.
-enum class ECharacterState : uint8
-{
-	Idle,
-	ApplyingMovement,
-	Breaking
-};
-
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -27,55 +19,44 @@ UCLASS(config=Game)
 class ASkateboardingCharacter : public ACharacter
 {
 	GENERATED_BODY()
-	
+
+	/** Camera boom positioning the camera behind the character */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	USpringArmComponent* CameraBoom;
-	
+
+	/** Follow camera */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
 	UCameraComponent* FollowCamera;
 	
+	/** MappingContext */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputMappingContext* DefaultMappingContext;
-	
+
+	/** Jump Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* JumpAction;
 
+	/** Move Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveForwardAction;
+	UInputAction* MoveAction;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
-	UInputAction* MoveRightAction;
-	
+	/** Look Input Action */
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Input, meta = (AllowPrivateAccess = "true"))
 	UInputAction* LookAction;
-
-	// Timer handle
-	FTimerHandle TimerHandle;
-
-	// Function to be called when timer expires
-	void ApplyingMovement();
-
-	// Example function to start the timer
-	void StartTimer();
-
 
 public:
 	ASkateboardingCharacter();
 	
 
 protected:
-	
-	void MoveForward(const FInputActionValue& Value);
 
-	void MoveRight(const FInputActionValue& Value);
-	
+	/** Called for movement input */
+	void Move(const FInputActionValue& Value);
+
+	/** Called for looking input */
 	void Look(const FInputActionValue& Value);
+			
 
-	void Break(const FInputActionValue& Value);
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Skateboard Movement")
-	
-	bool bIsJumping = false;
 protected:
 
 	virtual void NotifyControllerChanged() override;
@@ -83,7 +64,9 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
+	/** Returns CameraBoom subobject **/
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	/** Returns FollowCamera subobject **/
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
 
