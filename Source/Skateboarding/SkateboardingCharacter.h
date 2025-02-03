@@ -4,9 +4,11 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interaction/InteractionInterface.h"
 #include "Logging/LogMacros.h"
 #include "SkateboardingCharacter.generated.h"
 
+class ASkateboardBase;
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -16,7 +18,7 @@ struct FInputActionValue;
 DECLARE_LOG_CATEGORY_EXTERN(LogTemplateCharacter, Log, All);
 
 UCLASS(config=Game)
-class ASkateboardingCharacter : public ACharacter
+class ASkateboardingCharacter : public ACharacter, public IInteractionInterface
 {
 	GENERATED_BODY()
 	
@@ -35,15 +37,22 @@ class ASkateboardingCharacter : public ACharacter
 public:
 	ASkateboardingCharacter();
 
+
+	UPROPERTY()
+	AActor* Skateboard = nullptr;
+
+	
+	virtual void SetSkateboard(AActor* NewSkateboard) override;
+
 protected:
 	UPROPERTY(EditAnywhere, Category = Input)
-	class UInputAction* MoveAction;
+	UInputAction* MoveAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
-	class UInputAction* TurnAction;
+	UInputAction* TurnAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
-	class UInputAction* JumpAction;
+	UInputAction* JumpAction;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	FVector CurrentVelocity = FVector::ZeroVector;
@@ -52,7 +61,7 @@ protected:
 	float AccelerationRate = 600.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
-	float MaxSpeed = 2000.0f;
+	float MaxSpeed = 5000.0f;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float FrictionCoefficient = 0.8f;
@@ -67,8 +76,8 @@ protected:
 	
 	void Move(const FInputActionValue& Value);
 	void Turn(const FInputActionValue& Value);
-	
 	void Look(const FInputActionValue& Value);
+
 
 protected:
 	virtual void Tick(float DeltaTime) override;
@@ -78,8 +87,11 @@ protected:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 public:
-	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
+	FORCEINLINE USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
 	
-	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+	FORCEINLINE UCameraComponent* GetFollowCamera() const { return FollowCamera; }
+
+private:
+	void InitNewSkateboard();
 };
 

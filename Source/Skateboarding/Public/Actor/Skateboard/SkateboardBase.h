@@ -13,5 +13,11 @@ UCLASS()
 class SKATEBOARDING_API ASkateboardBase : public AInteractableActor
 {
 	GENERATED_BODY()
-	
+
+	ASkateboardBase();
+protected:
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Skateboard")
+	UStaticMeshComponent* SkateboardMesh;
+
+	virtual void Interact(ACharacter* InteractingCharacter) override;
 };

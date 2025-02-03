@@ -10,12 +10,12 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
+#include "Actor/Skateboard/SkateboardBase.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 ASkateboardingCharacter::ASkateboardingCharacter()
 {
-	
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationYaw = false;
@@ -43,8 +43,10 @@ ASkateboardingCharacter::ASkateboardingCharacter()
 	
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	FollowCamera->bUsePawnControlRotation = false; 
+	FollowCamera->bUsePawnControlRotation = false;
 }
+
+
 
 void ASkateboardingCharacter::NotifyControllerChanged()
 {
@@ -77,8 +79,11 @@ void ASkateboardingCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 	}
 }
 
+
+
 void ASkateboardingCharacter::Move(const FInputActionValue& Value)
 {
+	
 	const float InputValue = Value.GetMagnitude();
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
@@ -114,16 +119,12 @@ void ASkateboardingCharacter::Turn(const FInputActionValue& Value)
 	{
 		AddActorLocalRotation(FRotator(0.f, CurrentTurnRate * DeltaTime, 0.f));
 	}
-
-	
 }
 
 void ASkateboardingCharacter::Look(const FInputActionValue& Value)
 {
 	const FVector2D LookInput = Value.Get<FVector2D>();
-
-	// Mouse input is typically already a delta (frame rate independent),
-	// so do not multiply by DeltaTime here.
+	
 	AddControllerYawInput(LookInput.X);
 	AddControllerPitchInput(LookInput.Y);
 }
@@ -131,15 +132,59 @@ void ASkateboardingCharacter::Look(const FInputActionValue& Value)
 void ASkateboardingCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+    UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+    if (MoveComp && MoveComp->IsMovingOnGround())
+    {
+        const FVector ActorLocation = GetActorLocation();
+        const FVector TraceStart = ActorLocation;
+        const FVector TraceEnd = ActorLocation - FVector(0.f, 0.f, 150.f);
+        FHitResult Hit;
+        
+        if (GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility))
+        {
+            const FVector FloorNormal = Hit.ImpactNormal;
+            const float DotUp = FVector::DotProduct(FloorNormal, FVector::UpVector);
+        	
+            if (DotUp < 0.99f)
+            {
+                float SlopeAngle = FMath::Acos(FloorNormal.Z);
+
+                float EffectiveAccel = 980.f * FMath::Sin(SlopeAngle);
+            	
+                FVector DownhillDir = FVector::VectorPlaneProject(FVector(0.f, 0.f, -1.f), FloorNormal);
+                DownhillDir.Normalize();
+            	
+                float Alignment = FMath::Abs(FVector::DotProduct(GetActorForwardVector(), DownhillDir));
+                float DirectionMultiplier = FMath::Lerp(0.001f, 1.0f, Alignment);
+            	
+                CurrentVelocity += DownhillDir * EffectiveAccel * DeltaTime * DirectionMultiplier;
+            }
+        }
+    }
 	
-	if (!CurrentVelocity.IsNearlyZero())
-	{
-		CurrentVelocity = FMath::VInterpTo(CurrentVelocity, FVector::ZeroVector, DeltaTime, FrictionCoefficient);
-	}
+    if (!CurrentVelocity.IsNearlyZero())
+    {
+        CurrentVelocity = FMath::VInterpTo(CurrentVelocity, FVector::ZeroVector, DeltaTime, FrictionCoefficient);
+    }
 	
-	if (!CurrentVelocity.IsNearlyZero())
-	{
-		FVector DeltaMove = CurrentVelocity * DeltaTime;
-		AddActorWorldOffset(DeltaMove, true);
-	}
+    if (!CurrentVelocity.IsNearlyZero())
+    {
+        FVector DeltaMove = CurrentVelocity * DeltaTime;
+        AddActorWorldOffset(DeltaMove, true);
+    }
+}
+
+void ASkateboardingCharacter::SetSkateboard(AActor* NewSkateboard)
+{
+	Skateboard = NewSkateboard;
+	InitNewSkateboard();
+}
+
+void ASkateboardingCharacter::InitNewSkateboard()
+{
+	
+	Skateboard->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("rootSocket"));
+
+	
 }
