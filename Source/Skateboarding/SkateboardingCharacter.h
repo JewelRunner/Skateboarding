@@ -62,7 +62,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float TurnInterpSpeed = 2.0f;
-
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Movement")
 	float CurrentTurnRate = 0.0f;
 	
 	void Move(const FInputActionValue& Value);
@@ -79,7 +79,7 @@ protected:
 
 public:
 	FORCEINLINE class USpringArmComponent* GetCameraBoom() const { return CameraBoom; }
-
+	
 	FORCEINLINE class UCameraComponent* GetFollowCamera() const { return FollowCamera; }
 };
 

@@ -15,6 +15,7 @@ DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
 ASkateboardingCharacter::ASkateboardingCharacter()
 {
+	
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationYaw = false;
@@ -38,7 +39,7 @@ ASkateboardingCharacter::ASkateboardingCharacter()
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
 	CameraBoom->TargetArmLength = 400.0f; 
-	CameraBoom->bUsePawnControlRotation = false;
+	CameraBoom->bUsePawnControlRotation = true;
 	
 	FollowCamera = CreateDefaultSubobject<UCameraComponent>(TEXT("FollowCamera"));
 	FollowCamera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
@@ -78,7 +79,7 @@ void ASkateboardingCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 void ASkateboardingCharacter::Move(const FInputActionValue& Value)
 {
-	const float InputValue = Value.Get<float>();
+	const float InputValue = Value.GetMagnitude();
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
 	FVector ForwardDir = GetActorForwardVector();
@@ -97,7 +98,7 @@ void ASkateboardingCharacter::Turn(const FInputActionValue& Value)
 {
 	constexpr float Deadzone = 0.1f;
 	
-	const float TurnInput = Value.Get<float>();
+	const float TurnInput = Value.GetMagnitude();
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
 	
 	const float DesiredTurnRate = (FMath::Abs(TurnInput) < Deadzone) ? 0.f : TurnInput * MaxTurnRate;
@@ -113,23 +114,22 @@ void ASkateboardingCharacter::Turn(const FInputActionValue& Value)
 	{
 		AddActorLocalRotation(FRotator(0.f, CurrentTurnRate * DeltaTime, 0.f));
 	}
+
+	
 }
 
 void ASkateboardingCharacter::Look(const FInputActionValue& Value)
 {
-	FVector2D LookAxisVector = Value.Get<FVector2D>();
+	const FVector2D LookInput = Value.Get<FVector2D>();
 
-	if (Controller != nullptr)
-	{
-		AddControllerYawInput(LookAxisVector.X);
-		AddControllerPitchInput(LookAxisVector.Y);
-	}
+	// Mouse input is typically already a delta (frame rate independent),
+	// so do not multiply by DeltaTime here.
+	AddControllerYawInput(LookInput.X);
+	AddControllerPitchInput(LookInput.Y);
 }
 
 void ASkateboardingCharacter::Tick(float DeltaTime)
 {
-	Super::Tick(DeltaTime);
-
 	Super::Tick(DeltaTime);
 	
 	if (!CurrentVelocity.IsNearlyZero())
