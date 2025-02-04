@@ -20,7 +20,6 @@ void AObstacleBase::Interact(ACharacter* InteractingCharacter)
 	if (InteractingCharacter->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{
 		IInteractionInterface* InteractionInterface = Cast<IInteractionInterface>(InteractingCharacter);
-		BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		InteractionInterface->AddScore(Points);
 	}
 }

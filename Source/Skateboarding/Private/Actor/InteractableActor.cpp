@@ -18,6 +18,8 @@ AInteractableActor::AInteractableActor()
 	BoxComp->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 	BoxComp->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
+	BoxComp->SetGenerateOverlapEvents(true);
+	
 	SetRootComponent(BoxComp);
 }
 
@@ -30,15 +32,20 @@ void AInteractableActor::BeginPlay()
 
 	BoxComp->OnComponentBeginOverlap.AddDynamic(this, &AInteractableActor::OnBoxBeginOverlap);
 	BoxComp->OnComponentEndOverlap.AddDynamic(this, &AInteractableActor::OnBoxEndOverlap);
+
+
 }
 
 void AInteractableActor::OnBoxBeginOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnBoxBeginOverlap()"))
+	
 	if (ASkateboardingCharacter* SkateboardingCharacter = Cast<ASkateboardingCharacter>(OtherActor))
 	{
 		Interact(SkateboardingCharacter);
 	}
+	
 }
 
 void AInteractableActor::OnBoxEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
