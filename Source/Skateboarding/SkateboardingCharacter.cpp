@@ -50,8 +50,6 @@ ASkateboardingCharacter::ASkateboardingCharacter()
 void ASkateboardingCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
-
-	
 	
 	UE_LOG(LogTemp, Warning, TEXT("PossessedBy is called"))
 	
@@ -102,8 +100,6 @@ void ASkateboardingCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 		UE_LOG(LogTemplateCharacter, Error, TEXT("'%s' Failed to find an Enhanced Input component! This template is built to use the Enhanced Input system. If you intend to use the legacy system, then you will need to update this C++ file."), *GetNameSafe(this));
 	}
 }
-
-
 
 void ASkateboardingCharacter::Move(const FInputActionValue& Value)
 {
