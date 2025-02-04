@@ -19,4 +19,7 @@ protected:
 	UStaticMeshComponent* ObstacleMesh = nullptr;
 
 	virtual void Interact(ACharacter* InteractingCharacter) override;
+private:
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Obstacle", meta = (AllowPrivateAccess = "true"))
+	int32 Points = 1;
 };

@@ -8,6 +8,8 @@
 #include "Logging/LogMacros.h"
 #include "SkateboardingCharacter.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnScoreChanged, int32, NewScore);
+
 class ASkateboardBase;
 class USpringArmComponent;
 class UCameraComponent;
@@ -44,11 +46,15 @@ public:
 	
 	virtual void SetSkateboard(AActor* NewSkateboard) override;
 
+	virtual void AddScore(int32 NewScore);
+
 	UPROPERTY(BlueprintReadOnly)
 	float MovingInput = 50.0f;
 
 	float MovingInputValue = 0.f;
-
+	
+	int32 CurrentScore = 0;
+	
 protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* MoveAction;
@@ -83,7 +89,8 @@ protected:
 	void Turn(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 
-
+	UPROPERTY(BlueprintAssignable)
+	FOnScoreChanged OnScoreChanged;
 protected:
 	virtual void Tick(float DeltaTime) override;
 	

@@ -207,6 +207,12 @@ void ASkateboardingCharacter::SetSkateboard(AActor* NewSkateboard)
 	InitNewSkateboard();
 }
 
+void ASkateboardingCharacter::AddScore(int32 NewScore)
+{
+	CurrentScore += NewScore;
+	OnScoreChanged.Broadcast(CurrentScore);
+}
+
 void ASkateboardingCharacter::InitNewSkateboard()
 {
 	Skateboard->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("LeftFootSocket"));

@@ -24,4 +24,5 @@ class SKATEBOARDING_API IInteractionInterface
 public:
 	virtual void Interact(ACharacter* InteractingCharacter) {};
 	virtual void SetSkateboard(AActor* NewSkateboard) {};
+	virtual void AddScore(int32 NewScore) {};
 };

@@ -4,6 +4,7 @@
 #include "Actor/Obstacle/ObstacleBase.h"
 
 #include "Components/BoxComponent.h"
+#include "GameFramework/Character.h"
 
 AObstacleBase::AObstacleBase()
 {
@@ -16,6 +17,10 @@ AObstacleBase::AObstacleBase()
 
 void AObstacleBase::Interact(ACharacter* InteractingCharacter)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Interact with obstacle"))
-	
+	if (InteractingCharacter->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
+	{
+		IInteractionInterface* InteractionInterface = Cast<IInteractionInterface>(InteractingCharacter);
+		BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
+		InteractionInterface->AddScore(Points);
+	}
 }
