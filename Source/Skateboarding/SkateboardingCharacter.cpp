@@ -185,5 +185,5 @@ void ASkateboardingCharacter::SetSkateboard(AActor* NewSkateboard)
 
 void ASkateboardingCharacter::InitNewSkateboard()
 {
-	Skateboard->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("rootSocket"));
+	Skateboard->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("LeftFootSocket"));
 }

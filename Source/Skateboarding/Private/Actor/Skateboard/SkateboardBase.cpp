@@ -3,6 +3,7 @@
 
 #include "Actor/Skateboard/SkateboardBase.h"
 
+#include "Components/BoxComponent.h"
 #include "GameFramework/Character.h"
 
 ASkateboardBase::ASkateboardBase()
@@ -14,7 +15,6 @@ ASkateboardBase::ASkateboardBase()
 	SkateboardMesh->SetStaticMesh(Asset);
 	
 	SkateboardMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	
 	SkateboardMesh->SetupAttachment(GetRootComponent());
 }
 
@@ -23,6 +23,7 @@ void ASkateboardBase::Interact(ACharacter* InteractingCharacter)
 	if (InteractingCharacter->GetClass()->ImplementsInterface(UInteractionInterface::StaticClass()))
 	{
 		IInteractionInterface* InteractionInterface = Cast<IInteractionInterface>(InteractingCharacter);
+		BoxComp->SetCollisionResponseToChannel(ECC_Pawn, ECR_Ignore);
 		InteractionInterface->SetSkateboard(this);
 	}
 }
