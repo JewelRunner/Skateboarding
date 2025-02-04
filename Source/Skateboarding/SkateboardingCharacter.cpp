@@ -11,6 +11,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputActionValue.h"
 #include "Actor/Skateboard/SkateboardBase.h"
+#include "UI/HUDBase.h"
 
 DEFINE_LOG_CATEGORY(LogTemplateCharacter);
 
@@ -46,7 +47,30 @@ ASkateboardingCharacter::ASkateboardingCharacter()
 	FollowCamera->bUsePawnControlRotation = false;
 }
 
+void ASkateboardingCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
 
+	
+	
+	UE_LOG(LogTemp, Warning, TEXT("PossessedBy is called"))
+	
+	APlayerController* PlayerController = Cast<APlayerController>(NewController);
+
+	if (PlayerController->GetHUD())
+	{
+		UE_LOG(LogTemp, Warning, TEXT("HUD is valid"))
+	}
+	
+	if (PlayerController)
+	{		
+		if (AHUDBase* HUDBase = Cast<AHUDBase>(PlayerController->GetHUD()))
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Before InitOverlay"))
+			HUDBase->InitOverlay();
+		}
+	}
+}
 
 void ASkateboardingCharacter::NotifyControllerChanged()
 {

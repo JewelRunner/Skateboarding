@@ -37,6 +37,8 @@ class ASkateboardingCharacter : public ACharacter, public IInteractionInterface
 public:
 	ASkateboardingCharacter();
 
+	virtual void PossessedBy(AController* NewController) override;
+
 	UPROPERTY()
 	AActor* Skateboard = nullptr;
 	
