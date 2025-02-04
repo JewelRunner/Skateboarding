@@ -37,12 +37,15 @@ class ASkateboardingCharacter : public ACharacter, public IInteractionInterface
 public:
 	ASkateboardingCharacter();
 
-
 	UPROPERTY()
 	AActor* Skateboard = nullptr;
-
 	
 	virtual void SetSkateboard(AActor* NewSkateboard) override;
+
+	UPROPERTY(BlueprintReadOnly)
+	float MovingInput = 50.0f;
+
+	float MovingInputValue = 0.f;
 
 protected:
 	UPROPERTY(EditAnywhere, Category = Input)

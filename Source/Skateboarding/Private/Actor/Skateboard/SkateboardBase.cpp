@@ -8,11 +8,13 @@
 ASkateboardBase::ASkateboardBase()
 {
 	SkateboardMesh = CreateDefaultSubobject<UStaticMeshComponent>("SkateboardMesh");
+	
 	static ConstructorHelpers::FObjectFinder<UStaticMesh>MeshAsset(TEXT("/Game/Assets/Skateboard/Skateboard.Skateboard"));
 	UStaticMesh* Asset = MeshAsset.Object;
-
 	SkateboardMesh->SetStaticMesh(Asset);
+	
 	SkateboardMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	
 	SkateboardMesh->SetupAttachment(GetRootComponent());
 }
 

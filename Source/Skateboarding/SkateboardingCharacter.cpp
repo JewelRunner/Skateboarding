@@ -83,6 +83,9 @@ void ASkateboardingCharacter::SetupPlayerInputComponent(UInputComponent* PlayerI
 
 void ASkateboardingCharacter::Move(const FInputActionValue& Value)
 {
+	MovingInputValue = Value.GetMagnitude();
+	MovingInput += MovingInputValue*5.f;
+	MovingInput = FMath::Clamp(MovingInput, 1.0f, 100.0f);
 	
 	const float InputValue = Value.GetMagnitude();
 	const float DeltaTime = GetWorld()->GetDeltaSeconds();
@@ -132,31 +135,35 @@ void ASkateboardingCharacter::Look(const FInputActionValue& Value)
 void ASkateboardingCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
-    UCharacterMovementComponent* MoveComp = GetCharacterMovement();
+	
+	MovingInput = FMath::FInterpTo(MovingInput, 50.0f, DeltaTime, 10.f);
+	
+	UCharacterMovementComponent* MoveComp = GetCharacterMovement();
     if (MoveComp && MoveComp->IsMovingOnGround())
     {
         const FVector ActorLocation = GetActorLocation();
         const FVector TraceStart = ActorLocation;
         const FVector TraceEnd = ActorLocation - FVector(0.f, 0.f, 150.f);
         FHitResult Hit;
-        
+    	
         if (GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Visibility))
         {
             const FVector FloorNormal = Hit.ImpactNormal;
-            const float DotUp = FVector::DotProduct(FloorNormal, FVector::UpVector);
-        	
-            if (DotUp < 0.99f)
+            
+            if (FVector::DotProduct(FloorNormal, FVector::UpVector) < 0.99f)
             {
-                float SlopeAngle = FMath::Acos(FloorNormal.Z);
-
-                float EffectiveAccel = 980.f * FMath::Sin(SlopeAngle);
+                const float SlopeAngle = FMath::Acos(FloorNormal.Z);
+                const float Gravity = 980.f;
+                
+                const float EffectiveAccel = Gravity * FMath::Sin(SlopeAngle);
             	
-                FVector DownhillDir = FVector::VectorPlaneProject(FVector(0.f, 0.f, -1.f), FloorNormal);
+                const FVector Downward(0.f, 0.f, -1.f);
+                
+                FVector DownhillDir = FVector::VectorPlaneProject(Downward, FloorNormal);
                 DownhillDir.Normalize();
             	
-                float Alignment = FMath::Abs(FVector::DotProduct(GetActorForwardVector(), DownhillDir));
-                float DirectionMultiplier = FMath::Lerp(0.001f, 1.0f, Alignment);
+                const float Alignment = FMath::Abs(FVector::DotProduct(GetActorForwardVector(), DownhillDir));
+                const float DirectionMultiplier = FMath::Lerp(0.001f, 1.0f, Alignment);
             	
                 CurrentVelocity += DownhillDir * EffectiveAccel * DeltaTime * DirectionMultiplier;
             }
@@ -166,12 +173,7 @@ void ASkateboardingCharacter::Tick(float DeltaTime)
     if (!CurrentVelocity.IsNearlyZero())
     {
         CurrentVelocity = FMath::VInterpTo(CurrentVelocity, FVector::ZeroVector, DeltaTime, FrictionCoefficient);
-    }
-	
-    if (!CurrentVelocity.IsNearlyZero())
-    {
-        FVector DeltaMove = CurrentVelocity * DeltaTime;
-        AddActorWorldOffset(DeltaMove, true);
+        AddActorWorldOffset(CurrentVelocity * DeltaTime, true);
     }
 }
 
@@ -183,8 +185,5 @@ void ASkateboardingCharacter::SetSkateboard(AActor* NewSkateboard)
 
 void ASkateboardingCharacter::InitNewSkateboard()
 {
-	
 	Skateboard->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("rootSocket"));
-
-	
 }
