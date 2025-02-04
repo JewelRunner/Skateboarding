@@ -17,7 +17,7 @@ class SKATEBOARDING_API AInteractableActor : public AActor, public IInteractionI
 public:	
 	AInteractableActor();
 
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UBoxComponent* BoxComp;
 protected:
 	virtual void BeginPlay() override;
